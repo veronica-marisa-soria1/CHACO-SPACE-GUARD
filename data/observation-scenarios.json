@@ -1,0 +1,51 @@
+{
+  "type": "SIMULACIÓN",
+  "seed": "CG01-VENTANA-01",
+  "weatherEvent": "Las condiciones meteorológicas de Campo del Cielo han empeorado.",
+  "stations": [
+    {
+      "id": "campo",
+      "name": "Base Campo del Cielo",
+      "capability": "fotometría",
+      "condition": "Cielo parcialmente cubierto",
+      "cost": 25,
+      "durationHours": 2
+    },
+    {
+      "id": "quitilipi",
+      "name": "Estación Quitilipi",
+      "capability": "astrometría",
+      "condition": "Cielo despejado",
+      "cost": 35,
+      "durationHours": 3
+    },
+    {
+      "id": "apoyo",
+      "name": "Estación Nacional de Apoyo",
+      "capability": "espectroscopía",
+      "condition": "Disponibilidad limitada",
+      "cost": 50,
+      "durationHours": 4
+    }
+  ],
+  "instruments": [
+    {
+      "id": "photometry",
+      "name": "Fotometría",
+      "station": "campo",
+      "targets": ["diameter", "rotation"]
+    },
+    {
+      "id": "astrometry",
+      "name": "Astrometría óptica",
+      "station": "quitilipi",
+      "targets": ["orbit"]
+    },
+    {
+      "id": "spectroscopy",
+      "name": "Espectroscopía",
+      "station": "apoyo",
+      "targets": ["surface"]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+@keyframes m2-hologram{0%,100%{box-shadow:0 0 0 #38bdf800;border-color:#20384b}50%{box-shadow:0 0 22px #38bdf822;border-color:#2a6478}}
+@keyframes m2-scanline{0%{transform:translateY(-110%)}100%{transform:translateY(250%)}}
+.m2-lab-visual{animation:m2-hologram 5s ease-in-out infinite}
+.m2-sample-rock{animation:drift 8s ease-in-out infinite}
+.m2-window-ready{animation:reveal .35s ease both}
+.m2-victory{animation:reveal .55s ease both}
+@media(prefers-reduced-motion:reduce){.m2-lab-visual,.m2-sample-rock,.m2-window-ready,.m2-victory{animation:none!important}}

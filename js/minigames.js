@@ -1,0 +1,3 @@
+export const terms=[['ASTEROIDE','Cuerpo rocoso o metálico en el espacio','rock'],['METEORO','Fenómeno luminoso en la atmósfera','meteor'],['METEORITO','Fragmento extraterrestre que llega al suelo','rock']];
+export const journey=['Objeto o fragmento en el espacio','Entrada en la atmósfera','Llegada de un meteorito al suelo'];
+export function bindDrag(root,onDrop){root.querySelectorAll('[draggable]').forEach(el=>el.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',el.dataset.term)));root.querySelectorAll('[data-drop]').forEach(el=>{el.addEventListener('dragover',e=>e.preventDefault());el.addEventListener('drop',e=>{e.preventDefault();onDrop(e.dataTransfer.getData('text/plain'),el.dataset.drop)})})}

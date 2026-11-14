@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+const storage=new Map();globalThis.localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)};
+let click;const nodes=new Map();function node(id){if(!nodes.has(id))nodes.set(id,{innerHTML:'',textContent:'',hidden:false,classList:{add(){},remove(){}},addEventListener(type,fn){if(id==='#app'&&type==='click')click=fn},querySelectorAll:()=>[],querySelector:()=>null,focus(){},showModal(){},close(){},getContext:()=>({clearRect(){},beginPath(){},arc(){},fill(){}})});return nodes.get(id)}
+globalThis.document={querySelector:node,hidden:false,createElement:()=>({click(){}})};globalThis.window=globalThis;globalThis.innerWidth=1440;globalThis.innerHeight=900;globalThis.matchMedia=()=>({matches:true});globalThis.requestAnimationFrame=()=>{};globalThis.addEventListener=()=>{};globalThis.confirm=()=>true;
+globalThis.fetch=async url=>{try{return {ok:true,json:async()=>JSON.parse(await fs.readFile(new URL(url,import.meta.url),'utf8'))}}catch{return {ok:false}}};
+await import('./js/app.js');const G=await import('./js/game-state.js');
+async function act(action,dataset={}){const b={dataset:{action,...dataset},disabled:false,innerText:action,setAttribute(){},closest:()=>({classList:{add(){}}})};await click({target:{closest:()=>b},preventDefault(){}})}
+await act('new');await act('skip');assert.equal(G.state.credits,1000);
+await act('activate',{id:'2'});assert.equal(G.state.systems,0);
+for(let i=0;i<3;i++)await act('activate',{id:String(i)});assert.deepEqual(G.state.completed,[1]);
+await act('phase',{id:'4'});assert.equal(G.state.phase,1);
+await act('phase',{id:'2'});
+for(const term of ['ASTEROIDE','METEORO','METEORITO']){await act('term',{term});await act('drop',{drop:term})}
+await act('sequence',{id:'2'});assert.equal(G.state.sequence.length,0);
+for(let i=0;i<3;i++)await act('sequence',{id:String(i)});await act('regional',{correct:'true'});assert.ok(G.state.completed.includes(2));
+await act('phase',{id:'3'});await act('nasa-answer',{correct:'true'});assert.equal(G.state.nasa,false);
+for(let i=0;i<3;i++)await act('record',{id:String(i)});await act('nasa-answer',{correct:'true'});assert.ok(G.state.completed.includes(3));
+await act('phase',{id:'4'});await act('research',{id:'orbit'});assert.equal(G.state.spent,0);
+for(const id of ['review','risk','observe','orbit'])await act('research',{id});await act('research',{id:'orbit'});assert.equal(G.state.spent,90);
+await act('alert');assert.ok(!G.state.completed.includes(4));await act('distinction',{correct:'true'});assert.ok(G.state.completed.includes(4));
+await act('phase',{id:'5'});await act('station',{id:'2'});await act('weather',{id:'continue'});assert.equal(G.state.observation,false);assert.equal(G.state.spent,105);
+await act('weather',{id:'reschedule'});assert.equal(G.state.observation,true);assert.equal(G.state.spent,130);await act('weather',{id:'switch'});assert.equal(G.state.spent,130);
+await act('phase',{id:'6'});await act('final',{correct:'false'});assert.equal(G.state.nextMission,false);await act('final',{correct:'true'});assert.equal(G.state.nextMission,true);assert.equal(G.total(),100);assert.equal(G.state.credits,870);assert.equal(G.state.completed.length,6);
+G.saveGame();const expected=JSON.stringify(G.state);G.resetGame();storage.set('chaco-space-guard-v1',expected);assert.ok(G.loadGame());assert.equal(G.state.credits,870);assert.equal(G.state.nextMission,true);
+assert.equal(G.spend(871,'inviable'),false);assert.equal(G.state.credits,870);
+const realBefore=JSON.stringify(G.state);await act('mission2-demo');await act('m2-objective',{id:'diameter'});assert.equal(JSON.stringify(G.state),realBefore,'DEMO no debe modificar la partida real');await act('menu');
+await act('mission2');assert.equal(G.state.mission2.initialCredits,870);assert.ok(G.state.completed.includes(6),'la Misión 1 debe conservarse');
+await act('m2-phase',{id:'5'});assert.equal(G.state.mission2.phase,0,'la navegación debe bloquear fases futuras');
+for(const id of ['diameter','orbit','surface'])await act('m2-objective',{id});await act('m2-priority',{id:'orbit'});await act('m2-complete-objectives');
+assert.ok(G.state.mission2.completed.includes(0));
+await act('m2-phase',{id:'1'});
+for(const [sample,type] of [['metal','metal'],['rock','rock'],['mixed','mixed']])await act('m2-classify',{sample,type});
+await act('m2-composition',{correct:'true'});
+for(const id of ['photometry','spectroscopy','astrometry','radar']){await act('m2-technique',{id});await act('m2-match',{technique:id,'function':id})}
+await act('m2-complete-lab');assert.ok(G.state.mission2.completed.includes(1));
+await act('m2-phase',{id:'2'});
+const beforeMismatch=G.state.credits;await act('m2-target',{id:'diameter'});await act('m2-instrument',{id:'spectroscopy'});await act('m2-station',{id:'apoyo'});await act('m2-review-window');await act('m2-authorize');assert.equal(G.state.credits,beforeMismatch,'un instrumento incompatible no debe cobrar ni generar datos');assert.equal(G.state.mission2.observations.photometry,undefined);
+await act('m2-target',{id:'diameter'});await act('m2-instrument',{id:'photometry'});await act('m2-station',{id:'campo'});await act('m2-review-window');await act('m2-weather',{id:'reschedule'});await act('m2-authorize');
+const afterPhoto=G.state.credits;await act('m2-authorize');assert.equal(G.state.credits,afterPhoto,'no se debe cobrar dos veces la fotometría');
+await act('m2-target',{id:'orbit'});await act('m2-instrument',{id:'astrometry'});await act('m2-station',{id:'quitilipi'});await act('m2-review-window');await act('m2-authorize');
+await act('m2-target',{id:'surface'});await act('m2-instrument',{id:'spectroscopy'});await act('m2-station',{id:'apoyo'});await act('m2-review-window');await act('m2-authorize');await act('m2-complete-observations');
+assert.ok(G.state.mission2.completed.includes(2));assert.equal(G.state.mission2.spent,110);
+await act('m2-phase',{id:'3'});await act('m2-orbit-shape',{id:'moderate'});await act('m2-orbit-interpretation',{correct:'true'});await act('m2-orbit-analysis');await act('m2-complete-orbit');assert.ok(G.state.mission2.completed.includes(3));
+await act('m2-phase',{id:'4'});
+for(const [claim,category] of [['photoEvidence','evidence'],['diameter','estimate'],['rotation','estimate'],['astrometry','evidence'],['surface','estimate'],['metalCore','notProven'],['exactOrbit','notProven'],['impact','notProven']])await act('m2-claim',{claim,category});
+await act('m2-complete-profile');await act('m2-phase',{id:'5'});await act('m2-process-report');await act('m2-recommend',{id:'B'});
+assert.equal(G.state.mission2.status,'completada');assert.equal(G.state.mission2.finalScore,100);assert.equal(G.state.credits,700);assert.ok(G.state.mission3.unlocked);
+const m2Credits=G.state.credits;await act('m2-process-report');assert.equal(G.state.credits,m2Credits,'no se debe cobrar dos veces el informe');
+G.saveGame();assert.ok(G.loadGame());assert.equal(G.state.mission2.status,'completada');assert.equal(G.state.mission3.creditsRemaining,700);
+storage.set('chaco-space-guard-v1','{corrupto');assert.equal(G.loadGame(),false);assert.equal(G.state.credits,1000);
+console.log('PASS: Misión 1 intacta; Misión 2 bloqueada/desbloqueada; DEMO aislada; seis fases; operaciones compatibles e idempotentes; NASA separado de CG-01; informe, transferencia a Misión 3, 100 puntos, saldo 700 y guardado restaurable.');
+process.exit(0);

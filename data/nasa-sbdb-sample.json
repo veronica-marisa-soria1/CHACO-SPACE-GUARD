@@ -1,0 +1,22 @@
+{
+  "source": "NASA/JPL Small-Body Database (SBDB)",
+  "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=Eros&phys-par=1",
+  "documentation": "https://ssd-api.jpl.nasa.gov/doc/sbdb.html",
+  "object": "433 Eros",
+  "queriedAt": "2026-11-14",
+  "sampleOnly": true,
+  "notice": "Respaldo documental de una respuesta SBDB; no es una consulta en vivo. Los datos corresponden a Eros, no al objeto ficticio CG-01.",
+  "orbit": {
+    "semiMajorAxis": { "value": 1.46, "unit": "au" },
+    "eccentricity": { "value": 0.223, "unit": "" },
+    "inclination": { "value": 10.8, "unit": "deg" },
+    "period": { "value": 643, "unit": "d" },
+    "firstObservation": "1893-10-29",
+    "lastObservation": "2021-05-13",
+    "observationArcDays": 46582
+  },
+  "physical": {
+    "diameter": { "value": 16.84, "unit": "km" },
+    "rotationPeriod": { "value": 5.27, "unit": "h" }
+  }
+}

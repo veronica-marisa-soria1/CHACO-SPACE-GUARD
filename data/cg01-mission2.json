@@ -1,0 +1,28 @@
+{
+  "type": "SIMULACIÓN",
+  "object": "CG-01",
+  "fictional": true,
+  "initial": {
+    "diameterMeters": "120–180",
+    "relativeVelocityKmPerSecond": 18,
+    "narrativeHorizonYears": 12,
+    "composition": "Desconocida",
+    "rotation": "Desconocida",
+    "trajectoryUncertainty": "Elevada"
+  },
+  "possibleResults": {
+    "photometry": {
+      "diameterMeters": "145–155",
+      "rotationHours": "8–12",
+      "note": "Estimaciones narrativas predeterminadas; no son cálculos orbitales ni resultados reales."
+    },
+    "astrometry": {
+      "trajectoryUncertainty": "Moderada",
+      "note": "Mejora didáctica condicionada a observaciones simuladas; no representa una probabilidad de impacto."
+    },
+    "spectroscopy": {
+      "surface": "Indicios compatibles con material rocoso",
+      "note": "Inferencia narrativa; no determina la composición completa del objeto."
+    }
+  }
+}
